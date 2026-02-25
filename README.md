@@ -1,1 +1,1 @@
-# erp-ticketing-ai-module
+# ERP-T Project Description
