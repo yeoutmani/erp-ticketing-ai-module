@@ -12,10 +12,23 @@ describe('RLS Multi-Tenant Isolation', () => {
 
   beforeAll(async () => {
     // Get users from auth
-    const users = await service.auth.admin.listUsers()
+// Create User A
+    const { data: userAData } = await service.auth.admin.createUser({
+    email: 'userA@test.com',
+    password: 'password123',
+    email_confirm: true
+    })
 
-    userAId = users.data.users[0].id
-    userBId = users.data.users[1].id
+    userAId = userAData.user!.id
+
+    // Create User B
+    const { data: userBData } = await service.auth.admin.createUser({
+    email: 'userB@test.com',
+    password: 'password123',
+    email_confirm: true
+    })
+
+    userBId = userBData.user!.id
 
     // Create org A
     const { data: orgAData } = await service
@@ -51,7 +64,7 @@ describe('RLS Multi-Tenant Isolation', () => {
   it('User A should only see Org A tickets', async () => {
     await anon.auth.signInWithPassword({
       email: 'userA@test.com',
-      password: 'yourpassword'
+      password: 'password123'
     })
 
     const { data } = await anon.from('tickets').select('*')
@@ -63,13 +76,19 @@ describe('RLS Multi-Tenant Isolation', () => {
   it('User B should only see Org B tickets', async () => {
     await anon.auth.signInWithPassword({
       email: 'userB@test.com',
-      password: 'yourpassword'
+      password: 'password123'
     })
 
     const { data } = await anon.from('tickets').select('*')
 
     expect(data?.length).toBe(1)
     expect(data?.[0].title).toBe('Ticket B')
+  })
+    
+  afterAll(async () => {
+    await service.from('tickets').delete().neq('id', '')
+    await service.from('user_organizations').delete().neq('user_id', '')
+    await service.from('organizations').delete().neq('id', '')
   })
 
 })
