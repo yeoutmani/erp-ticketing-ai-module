@@ -9,12 +9,12 @@ describe('RLS Multi-Tenant Isolation', () => {
   let orgB: string
   let userAId: string
   let userBId: string
+  const unique = Date.now()
 
   beforeAll(async () => {
-    // Get users from auth
-// Create User A
+    // Create User A
     const { data: userAData } = await service.auth.admin.createUser({
-    email: 'userA@test.com',
+    email: `userA-${unique}@test.com`,
     password: 'password123',
     email_confirm: true
     })
@@ -23,7 +23,7 @@ describe('RLS Multi-Tenant Isolation', () => {
 
     // Create User B
     const { data: userBData } = await service.auth.admin.createUser({
-    email: 'userB@test.com',
+    email: `userB-${unique}@test.com`,
     password: 'password123',
     email_confirm: true
     })
@@ -63,7 +63,7 @@ describe('RLS Multi-Tenant Isolation', () => {
 
   it('User A should only see Org A tickets', async () => {
     await anon.auth.signInWithPassword({
-      email: 'userA@test.com',
+      email: `userA-${unique}@test.com`,
       password: 'password123'
     })
 
@@ -75,7 +75,7 @@ describe('RLS Multi-Tenant Isolation', () => {
 
   it('User B should only see Org B tickets', async () => {
     await anon.auth.signInWithPassword({
-      email: 'userB@test.com',
+      email: `userB-${unique}@test.com`,
       password: 'password123'
     })
 
