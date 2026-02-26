@@ -3,9 +3,14 @@ import * as dotenv from 'dotenv'
 
 dotenv.config({ path: '../.env' })
 
-export const supabaseUrl = process.env.SUPABASE_URL!
-export const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.SUPABASE_URL!
+const anonKey = process.env.SUPABASE_ANON_KEY!
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-export const createTestClient = () => {
-  return createClient(supabaseUrl, supabaseAnonKey)
+export const createAnonClient = () => {
+  return createClient(supabaseUrl, anonKey)
+}
+
+export const createServiceClient = () => {
+  return createClient(supabaseUrl, serviceRoleKey)
 }
