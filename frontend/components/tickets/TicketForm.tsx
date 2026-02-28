@@ -1,10 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabaseClient } from '@/lib/supabaseClient'
 
 export default function TicketForm() {
+  const router = useRouter()
   const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -14,17 +19,45 @@ export default function TicketForm() {
       return
     }
 
-    try {
-      throw new Error('Request failed')
-    } catch (err) {
-      setError('Error occurred: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    setLoading(true)
+    setError(null)
+
+    const { error } = await supabaseClient.from('tickets').insert({
+      title,
+      description
+    })
+
+    setLoading(false)
+
+    if (error) {
+      console.error('Error creating ticket:', error)
+      setError('Failed to create ticket')
+      return
     }
+
+    setTitle('')
+    setDescription('')
+    router.refresh()
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
-      <button type="submit">Submit</button>
+      <input
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+
+      <textarea
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
+
+      <button type="submit" disabled={loading}>
+        {loading ? 'Creating...' : 'Create Ticket'}
+      </button>
+
       {error && <p>{error}</p>}
     </form>
   )

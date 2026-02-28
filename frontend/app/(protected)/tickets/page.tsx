@@ -1,5 +1,6 @@
 import TicketList from '@/components/tickets/TicketList'
 import { createSupabaseServer } from '@/lib/supabaseServer'
+import TicketForm from '@/components/tickets/TicketForm'
 
 export default async function TicketsPage() {
   const supabase = await createSupabaseServer()
@@ -9,5 +10,10 @@ export default async function TicketsPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
-  return <TicketList tickets={tickets || []} />
+    return (
+    <>
+      <TicketForm />
+      <TicketList tickets={tickets || []} />
+    </>
+  )
 }
