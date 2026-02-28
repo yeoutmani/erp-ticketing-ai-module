@@ -13,12 +13,18 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   }
 
   return (
-    <div>
-      <header>
-        <h2>ERP Ticketing</h2>
+    <div className="min-h-screen bg-gray-50">
+      <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200">
+        <h2 className="text-xl font-bold text-gray-800">
+          ERP Ticketing
+        </h2>
+
         <LogoutButton />
       </header>
-      <main>{children}</main>
+
+      <main className="max-w-3xl mx-auto py-10 px-6 space-y-8">
+        {children}
+      </main>
     </div>
   )
 }
