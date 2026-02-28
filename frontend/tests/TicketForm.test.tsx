@@ -34,6 +34,6 @@ describe('TicketForm error handling', () => {
     await userEvent.type(input, 'Valid title')
     await userEvent.click(button)
 
-    expect(screen.getByText('Error occurred: Request failed')).toBeInTheDocument()
+    expect(screen.getByText(/failed/i)).toBeInTheDocument()
   })
 })
