@@ -23,9 +23,7 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
             key={ticket.id}
             className="px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition"
           >
-            <span className="font-medium text-gray-800">
-              {ticket.title}
-            </span>
+            <span className="font-medium text-gray-800">{ticket.title}</span>
 
             <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-600">
               {ticket.status}

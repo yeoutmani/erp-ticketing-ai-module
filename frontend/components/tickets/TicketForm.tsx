@@ -10,8 +10,7 @@ interface TicketData {
 }
 
 export default function TicketForm({
-  createTicket = (data: TicketData) =>
-    supabaseClient.from('tickets').insert(data)
+  createTicket = (data: TicketData) => supabaseClient.from('tickets').insert(data)
 }) {
   const router = useRouter()
   const [title, setTitle] = useState('')
@@ -45,10 +44,11 @@ export default function TicketForm({
   }
 
   return (
-    <form className="bg-white p-8 rounded-2xl shadow-md border border-gray-200 space-y-6" onSubmit={handleSubmit}>
-      <h3 className="text-xl font-semibold text-gray-900">
-        Create Ticket
-      </h3>
+    <form
+      className="bg-white p-8 rounded-2xl shadow-md border border-gray-200 space-y-6"
+      onSubmit={handleSubmit}
+    >
+      <h3 className="text-xl font-semibold text-gray-900">Create Ticket</h3>
 
       <div className="space-y-3">
         <input

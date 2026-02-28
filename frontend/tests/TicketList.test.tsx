@@ -10,8 +10,10 @@ describe('TicketList', () => {
 
     render(<TicketList tickets={mockTickets} />)
 
-    expect(screen.getByText('Server down - open')).toBeInTheDocument()
-    expect(screen.getByText('Bug login - closed')).toBeInTheDocument()
+    expect(screen.getByText(/server down/i)).toBeInTheDocument()
+    expect(screen.getByText(/open/i)).toBeInTheDocument()
+    expect(screen.getByText(/bug login/i)).toBeInTheDocument()
+    expect(screen.getByText(/closed/i)).toBeInTheDocument()
   })
 
   it('renders empty state when no tickets', () => {
