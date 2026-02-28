@@ -4,7 +4,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabaseClient } from '@/lib/supabaseClient'
 
-export default function TicketForm() {
+interface TicketData {
+  title: string
+  description: string
+}
+
+export default function TicketForm({
+    createTicket = (data: TicketData) =>
+      supabaseClient.from('tickets').insert(data)
+  }) {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -22,7 +30,7 @@ export default function TicketForm() {
     setLoading(true)
     setError(null)
 
-    const { error } = await supabaseClient.from('tickets').insert({
+    const { error } = await createTicket({
       title,
       description
     })

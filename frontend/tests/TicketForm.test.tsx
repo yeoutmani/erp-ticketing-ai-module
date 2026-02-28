@@ -23,7 +23,10 @@ describe('TicketForm validation', () => {
 
 describe('TicketForm error handling', () => {
   it('displays error message on failed request', async () => {
-    render(<TicketForm />)
+    const mockCreate = jest.fn().mockResolvedValue({
+      error: { message: 'Request failed' }
+    })
+    render(<TicketForm createTicket={mockCreate} />)
 
     const input = screen.getByPlaceholderText('Title')
     const button = screen.getByRole('button', { name: /create ticket/i })
