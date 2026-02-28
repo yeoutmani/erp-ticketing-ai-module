@@ -2,14 +2,12 @@ import { redirect } from 'next/navigation'
 import { createSupabaseServer } from '@/lib/supabaseServer'
 import LogoutButton from '@/components/buttons/logout'
 
-export default async function ProtectedLayout({
-  children
-}: {
-  children: React.ReactNode
-}) {
+export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
-  console.log("USER SERVER:", user)
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  console.log('USER SERVER:', user)
   if (!user) {
     redirect('/login')
   }
