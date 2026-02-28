@@ -1,0 +1,35 @@
+{
+  "name": "Ticket Created Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ticket-created",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b61baec9-acc5-4ce8-8aad-59c961831030",
+      "name": "Webhook",
+      "webhookId": "ce7c3eaf-7950-4702-9138-21017b5ee270"
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9cd2b442-c00a-4807-8327-ad9e4b8d36e6",
+  "meta": {
+    "instanceId": "2ff23050cbe6f011dba463f928eea36d3a5e642f735054dc3fd4d1348aac2a24"
+  },
+  "id": "dLIZ1ViTI0iFREpF",
+  "tags": []
+}
