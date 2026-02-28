@@ -26,7 +26,7 @@ describe('TicketForm error handling', () => {
     render(<TicketForm />)
 
     const input = screen.getByPlaceholderText('Title')
-    const button = screen.getByRole('button', { name: /submit/i })
+    const button = screen.getByRole('button', { name: /create ticket/i })
 
     await userEvent.type(input, 'Valid title')
     await userEvent.click(button)
