@@ -61,7 +61,7 @@ export default function TicketForm({
         {loading ? 'Creating...' : 'Create Ticket'}
       </button>
 
-      {error && <p>{error}</p>}
+      {error && <p role="alert">{error}</p>}
     </form>
   )
 }
