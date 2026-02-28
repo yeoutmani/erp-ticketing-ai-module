@@ -42,11 +42,7 @@ export default function TicketForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+      <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
 
       <textarea
         placeholder="Description"

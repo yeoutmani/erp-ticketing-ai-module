@@ -10,7 +10,7 @@ export default async function TicketsPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
-    return (
+  return (
     <>
       <TicketForm />
       <TicketList tickets={tickets || []} />
