@@ -13,7 +13,7 @@ describe('TicketForm validation', () => {
   it('blocks submission when title is empty', async () => {
     render(<TicketForm />)
 
-    const button = screen.getByRole('button', { name: /submit/i })
+    const button = screen.getByRole('button', { name: /create ticket/i })
 
     await userEvent.click(button)
 
