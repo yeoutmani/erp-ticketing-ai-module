@@ -2,6 +2,13 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import TicketForm from '@/components/tickets/TicketForm'
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    refresh: jest.fn()
+  })
+}))
+
 describe('TicketForm validation', () => {
   it('blocks submission when title is empty', async () => {
     render(<TicketForm />)
