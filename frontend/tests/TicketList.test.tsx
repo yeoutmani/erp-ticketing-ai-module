@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react'
-import TicketList from '@/components/tickets/TicketList'
+import TickeTable from '@/components/tickets/TickeTable'
 
-describe('TicketList', () => {
+describe('TickeTable', () => {
   it('renders tickets correctly', () => {
     const mockTickets = [
       { id: '1', title: 'Server down', status: 'open' },
       { id: '2', title: 'Bug login', status: 'closed' }
     ]
 
-    render(<TicketList tickets={mockTickets} />)
+    render(<TickeTable tickets={mockTickets} />)
 
     expect(screen.getByText(/server down/i)).toBeInTheDocument()
     expect(screen.getByText(/open/i)).toBeInTheDocument()
@@ -17,7 +17,7 @@ describe('TicketList', () => {
   })
 
   it('renders empty state when no tickets', () => {
-    render(<TicketList tickets={[]} />)
+    render(<TickeTable tickets={[]} />)
 
     expect(screen.getByText('No tickets found')).toBeInTheDocument()
   })

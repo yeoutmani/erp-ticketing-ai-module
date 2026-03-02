@@ -16,17 +16,36 @@
     },
     {
       "parameters": {
-        "url": "={{$env.SUPABASE_URL}}/rest/v1/tickets?select=*&limit=5",
+        "method": "PATCH",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/tickets?id=eq.{{$json.body.id}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
         "sendHeaders": true,
-        "specifyHeaders": "json",
-        "jsonHeaders": "{\n    \"apikey\": \"{{ $env.SUPABASE_ANON_KEY }}\",\n    \"Authorization\": \"Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}\"\n  }",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"priority\": \"medium\",\n  \"category\": \"general\"\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [208, 0],
       "id": "b4b693a3-ee24-47e1-863d-e0d98ecede67",
-      "name": "HTTP Request"
+      "name": "HTTP Request",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "Knvgz3bkwhepZsRn",
+          "name": "auth supabase"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -49,7 +68,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "2af127c4-376c-4302-b2a2-ee0c11e6ccd8",
+  "versionId": "fd43b67e-49f4-4882-ba2c-ab6cf139c91b",
   "meta": {
     "instanceId": "2ff23050cbe6f011dba463f928eea36d3a5e642f735054dc3fd4d1348aac2a24"
   },
