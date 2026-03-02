@@ -1,4 +1,4 @@
-import TicketList from '@/components/tickets/TicketList'
+import TicketList from '@/components/tickets/TickeTable'
 import { createSupabaseServer } from '@/lib/supabaseServer'
 import TicketForm from '@/components/tickets/TicketForm'
 

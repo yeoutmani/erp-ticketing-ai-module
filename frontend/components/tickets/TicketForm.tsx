@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { supabaseClient } from '@/lib/supabaseClient'
 
 interface TicketData {
@@ -10,9 +9,13 @@ interface TicketData {
 }
 
 export default function TicketForm({
-  createTicket = (data: TicketData) => supabaseClient.from('tickets').insert(data)
+  createTicket = (data: TicketData) =>
+  supabaseClient
+    .from('tickets')
+    .insert(data)
+    .select()
+    .single()
 }) {
-  const router = useRouter()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -29,18 +32,30 @@ export default function TicketForm({
     setLoading(true)
     setError(null)
 
-    const { error } = await createTicket({ title, description })
+    const { data, error } = await createTicket({
+      title,
+      description
+    })
 
-    setLoading(false)
-
-    if (error) {
+    if (error || !data) {
+      setLoading(false)
       setError('Failed to create ticket')
       return
     }
 
+    await fetch('http://localhost:5678/webhook/ticket-created', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        id: data.id
+      })
+    })
+
+    setLoading(false)
     setTitle('')
     setDescription('')
-    router.refresh()
   }
 
   return (
