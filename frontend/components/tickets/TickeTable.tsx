@@ -9,7 +9,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from '@/components/ui/table'
 
 type Ticket = {
@@ -34,45 +34,35 @@ export default function TicketTable({ tickets }: { tickets: Ticket[] }) {
   useEffect(() => {
     const channel = supabaseClient
       .channel('tickets-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'tickets' },
-        (payload) => {
-          // INSERT
-          if (payload.eventType === 'INSERT') {
-            const newTicket = payload.new as Ticket
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, (payload) => {
+        // INSERT
+        if (payload.eventType === 'INSERT') {
+          const newTicket = payload.new as Ticket
 
-            setData(prev => {
-              // prevent duplicates
-              if (prev.some(t => t.id === newTicket.id)) return prev
-              return [newTicket, ...prev]
-            })
-          }
-
-          // UPDATE
-          if (payload.eventType === 'UPDATE') {
-            const updated = payload.new as Ticket
-
-            setData(prev =>
-              prev.map(ticket =>
-                ticket.id === updated.id ? updated : ticket
-              )
-            )
-
-            setRecentlyUpdated(updated.id)
-            setTimeout(() => setRecentlyUpdated(null), 1500)
-          }
-
-          // DELETE
-          if (payload.eventType === 'DELETE') {
-            const removed = payload.old as Ticket
-
-            setData(prev =>
-              prev.filter(ticket => ticket.id !== removed.id)
-            )
-          }
+          setData((prev) => {
+            // prevent duplicates
+            if (prev.some((t) => t.id === newTicket.id)) return prev
+            return [newTicket, ...prev]
+          })
         }
-      )
+
+        // UPDATE
+        if (payload.eventType === 'UPDATE') {
+          const updated = payload.new as Ticket
+
+          setData((prev) => prev.map((ticket) => (ticket.id === updated.id ? updated : ticket)))
+
+          setRecentlyUpdated(updated.id)
+          setTimeout(() => setRecentlyUpdated(null), 1500)
+        }
+
+        // DELETE
+        if (payload.eventType === 'DELETE') {
+          const removed = payload.old as Ticket
+
+          setData((prev) => prev.filter((ticket) => ticket.id !== removed.id))
+        }
+      })
       .subscribe()
 
     return () => {
@@ -110,21 +100,15 @@ export default function TicketTable({ tickets }: { tickets: Ticket[] }) {
                 hover:bg-gray-100 transition-colors
               `}
             >
-              <TableCell className="font-medium text-gray-800">
-                {ticket.title}
-              </TableCell>
+              <TableCell className="font-medium text-gray-800">{ticket.title}</TableCell>
 
-              <TableCell className="text-gray-600">
-                {ticket.status}
-              </TableCell>
+              <TableCell className="text-gray-600">{ticket.status}</TableCell>
 
               <TableCell>
                 <PriorityBadge value={ticket.priority} />
               </TableCell>
 
-              <TableCell className="text-gray-600">
-                {ticket.category ?? '—'}
-              </TableCell>
+              <TableCell className="text-gray-600">{ticket.category ?? '—'}</TableCell>
             </TableRow>
           ))}
         </TableBody>

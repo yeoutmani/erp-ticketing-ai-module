@@ -9,12 +9,7 @@ interface TicketData {
 }
 
 export default function TicketForm({
-  createTicket = (data: TicketData) =>
-  supabaseClient
-    .from('tickets')
-    .insert(data)
-    .select()
-    .single()
+  createTicket = (data: TicketData) => supabaseClient.from('tickets').insert(data).select().single()
 }) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
