@@ -1,6 +1,7 @@
 import { buildClassificationPrompt } from "./prompt-builder"
 import { callAI } from "./provider"
 import { ClassificationSchema } from "./schema"
+import type { Classification } from "./schema"
 
 export async function classifyTicket(
   title: string,
