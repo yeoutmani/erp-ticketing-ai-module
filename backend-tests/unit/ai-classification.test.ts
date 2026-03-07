@@ -2,6 +2,10 @@ jest.mock('../../automation/ai/provider', () => ({
   callAI: jest.fn()
 }))
 
+jest.mock('../../automation/ai/retrieve-context', () => ({
+  retrieveContext: jest.fn().mockResolvedValue([])
+}))
+
 import { callAI } from '../../automation/ai/provider'
 import { classifyTicket } from '../../automation/ai/classifier'
 import { buildClassificationPrompt } from '../../automation/ai/prompt-builder'
