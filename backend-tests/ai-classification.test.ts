@@ -60,5 +60,19 @@ describe('AI Classification TDD', () => {
 
     expect(prompt).toMatchSnapshot()
   })
-
+    it("rejects schema violations", async () => {
+    
+      (callAI as jest.Mock).mockResolvedValue(
+        JSON.stringify({
+          priority: "urgent", // invalid enum
+          category: "incident",
+          confidence: 0.9
+        })
+      )
+    
+      await expect(
+        classifyTicket("Server down", "")
+      ).rejects.toThrow("Invalid AI response")
+    
+    })
 })
