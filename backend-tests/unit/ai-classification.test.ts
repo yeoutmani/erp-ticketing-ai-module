@@ -35,7 +35,7 @@ describe('AI Classification TDD', () => {
     })
   })
 
-  it('rejects invalid JSON response', async () => {
+  it('falls back when AI returns invalid JSON', async () => {
 
     mockAI.mockResolvedValue("invalid-json")
 
