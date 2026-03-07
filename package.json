@@ -1,10 +1,12 @@
 {
   "devDependencies": {
     "husky": "^8.0.0",
-    "lint-staged": "^16.2.7"
+    "lint-staged": "^16.2.7",
+    "tsx": "^4.21.0"
   },
   "scripts": {
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "generate:embeddings": "tsx automation/scripts/generate-embeddings.ts"
   },
   "lint-staged": {
     "frontend/**/*.{ts,tsx,js}": [
@@ -13,6 +15,9 @@
     ]
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.98.0",
+    "dotenv": "^17.3.1",
+    "ollama": "^0.6.3",
     "zod": "^4.3.6"
   }
 }
