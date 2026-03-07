@@ -19,7 +19,9 @@ export async function classifyTicket(
      throw new Error(`Invalid AI response: ${err}`)
   }
 
-  if (parsed.confidence < 0.7) {
+  const CONFIDENCE_THRESHOLD = 0.7
+
+  if (parsed.confidence < CONFIDENCE_THRESHOLD) {
     return {
       priority: "medium",
       category: "general",
