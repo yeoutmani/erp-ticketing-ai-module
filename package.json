@@ -11,5 +11,8 @@
       "cd frontend && prettier --write",
       "cd frontend && eslint --fix"
     ]
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
   }
 }

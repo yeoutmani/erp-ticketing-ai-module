@@ -1,24 +1,64 @@
+
+jest.mock('../automation/ai/provider', () => ({
+  callAI: jest.fn()
+}))
+
+import { callAI } from '../automation/ai/provider'
 import { classifyTicket } from '../automation/ai/classifier'
+import { buildClassificationPrompt } from '../automation/ai/prompt-builder'
+
 
 describe('AI Classification TDD', () => {
 
-  it('classifies urgent server issue as high priority', async () => {
-    const result = await classifyTicket("Server down urgent")
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
-    expect(result.priority).toBe('high')
+  it('classifies urgent server issue as high priority', async () => {
+    (callAI as jest.Mock).mockResolvedValue(
+      JSON.stringify({
+        priority: "high",
+        category: "incident",
+        confidence: 0.92
+      })
+    )
+
+    const result = await classifyTicket("Server down urgent", "")
+
+    expect(result.priority).toBe("high")
   })
 
   it('rejects invalid JSON response', async () => {
+
+    (callAI as jest.Mock).mockResolvedValue("invalid-json")
+
     await expect(
-      classifyTicket("invalid-json-test")
-    ).rejects.toThrow('Invalid AI response')
+      classifyTicket("broken", "")
+    ).rejects.toThrow("Invalid AI response")
   })
 
   it('applies fallback when confidence is low', async () => {
-    const result = await classifyTicket("minor typo in footer")
+    (callAI as jest.Mock).mockResolvedValue(
+      JSON.stringify({
+        priority: "low",
+        category: "general",
+        confidence: 0.4
+      })
+    )
 
-    expect(result.priority).toBe('medium')
-    expect(result.category).toBe('general')
+    const result = await classifyTicket("minor typo", "")
+
+    expect(result.priority).toBe("medium")
+    expect(result.category).toBe("general")
+  })
+
+  it("prompt structure should remain stable", () => {
+    const prompt = buildClassificationPrompt({
+      title: "Server down urgent",
+      description: "Production is offline"
+    })
+
+    expect(prompt).toMatchSnapshot()
   })
 
 })
