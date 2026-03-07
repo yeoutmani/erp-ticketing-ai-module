@@ -1,4 +1,4 @@
-import { createAnonClient, createServiceClient } from './setup'
+import { createAnonClient, createServiceClient } from '../setup'
 
 describe('RLS Multi-Tenant Isolation', () => {
   const service = createServiceClient()
@@ -56,7 +56,7 @@ describe('RLS Multi-Tenant Isolation', () => {
       { org_id: orgA, user_id: userAId, title: 'Ticket A' },
       { org_id: orgB, user_id: userBId, title: 'Ticket B' }
     ])
-  })
+  },20000)
 
   it('User A should only see Org A tickets', async () => {
     const client = createAnonClient()
