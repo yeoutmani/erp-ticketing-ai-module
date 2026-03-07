@@ -4,10 +4,10 @@ export function buildClassificationPrompt(params: {
   context?: string
 }) {
     return `
-        You are a ticket classification engine.
+        You are an AI system responsible for classifying SAV support tickets.
 
         You MUST return ONLY valid JSON.
-        Do NOT include explanations.
+        Do NOT include explanations, comments, or markdown.
 
         Allowed priority values:
         - high
@@ -21,21 +21,24 @@ export function buildClassificationPrompt(params: {
         - feature
         - general
 
-        Output format:
+        Output JSON format:
         {
-        "priority": "high | medium | low",
-        "category": "incident | billing | technical | feature | general",
-        "confidence": number between 0 and 1
+          "priority": "high | medium | low",
+          "category": "incident | billing | technical | feature | general",
+          "confidence": number between 0 and 1
         }
 
-        Context:
-        ${params.context ?? "None"}
+        Use the historical SAV tickets below as reference examples.
+
+        Historical SAV context:
+        ${params.context ?? "No relevant historical tickets."}
+
+        Now classify the following ticket.
 
         Ticket:
         Title: ${params.title}
         Description: ${params.description}
 
-        Classify this ticket.
         Return structured JSON only.
-        `
-    }
+      `
+  }
