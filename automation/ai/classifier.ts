@@ -12,8 +12,8 @@ export async function classifyTicket(title: string, description: string) {
   try {
     const json = JSON.parse(raw)
     parsed = ClassificationSchema.parse(json)
-  } catch {
-    throw new Error("Invalid AI response")
+   } catch (err) {
+     throw new Error(`Invalid AI response: ${err}`)
   }
 
   if (parsed.confidence < 0.7) {
