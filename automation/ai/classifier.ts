@@ -2,7 +2,10 @@ import { buildClassificationPrompt } from "./prompt-builder"
 import { callAI } from "./provider"
 import { ClassificationSchema } from "./schema"
 
-export async function classifyTicket(title: string, description: string) {
+export async function classifyTicket(
+  title: string,
+  description: string
+): Promise<Classification> {
   const prompt = buildClassificationPrompt({ title, description })
 
   const raw = await callAI(prompt)
