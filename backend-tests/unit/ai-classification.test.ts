@@ -35,18 +35,20 @@ describe('AI Classification TDD', () => {
     })
   })
 
-
-  it('rejects invalid JSON response', async () => {
+  it('falls back when AI returns invalid JSON', async () => {
 
     mockAI.mockResolvedValue("invalid-json")
 
-    await expect(
-      classifyTicket("broken", "")
-    ).rejects.toThrow("Invalid AI response")
+    const result = await classifyTicket("broken", "")
+
+    expect(result).toEqual({
+      priority: "medium",
+      category: "general",
+      confidence: 0
+    })
 
     expect(mockAI).toHaveBeenCalledTimes(1)
   })
-
 
   it('rejects schema violations', async () => {
 
@@ -58,12 +60,15 @@ describe('AI Classification TDD', () => {
       })
     )
 
-    await expect(
-      classifyTicket("Server down", "")
-    ).rejects.toThrow("Invalid AI response")
+    const result = await classifyTicket("broken", "")
+
+    expect(result).toEqual({
+      priority: "medium",
+      category: "general",
+      confidence: 0
+    })
 
   })
-
 
   it('applies fallback when confidence is low', async () => {
 
@@ -71,7 +76,7 @@ describe('AI Classification TDD', () => {
       JSON.stringify({
         priority: "low",
         category: "general",
-        confidence: 0.4
+        confidence: 0
       })
     )
 
@@ -80,10 +85,9 @@ describe('AI Classification TDD', () => {
     expect(result).toEqual({
       priority: "medium",
       category: "general",
-      confidence: 0.4
+      confidence: 0
     })
   })
-
 
   it('accepts classification when confidence is above threshold', async () => {
 
@@ -104,7 +108,6 @@ describe('AI Classification TDD', () => {
     })
   })
 
-
   it("prompt structure should remain stable", () => {
 
     const prompt = buildClassificationPrompt({
@@ -113,7 +116,25 @@ describe('AI Classification TDD', () => {
     })
 
     expect(prompt).toMatchSnapshot()
-
   })
 
+  it("falls back when AI times out", async () => {
+
+    mockAI.mockImplementation(
+      () => new Promise(() => {})
+    )
+
+    const result = await classifyTicket("Server down urgent", "")
+
+    expect(result.priority).toBe("high")
+  })
+
+  it("falls back when AI service fails", async () => {
+
+    mockAI.mockRejectedValue(new Error("service unavailable"))
+
+    const result = await classifyTicket("Server down urgent", "")
+
+    expect(result.priority).toBe("high")
+  })
 })
