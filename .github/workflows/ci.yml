@@ -12,10 +12,6 @@ jobs:
     name: Backend Tests (RLS + AI)
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: backend-tests
-
     steps:
       - uses: actions/checkout@v4
 
@@ -24,9 +20,23 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - run: npm ci
+      - name: Install root dependencies
+        run: npm ci
 
-      - run: npm test
+      - name: Install backend test dependencies
+        run: |
+          cd backend-tests
+          npm ci
+
+      - name: Run unit tests
+        run: |
+          cd backend-tests
+          npm test
+
+      - name: Run integration tests
+        run: |
+          cd backend-tests
+          npm run integration:test
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
@@ -87,12 +97,7 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
-
-      - name: Run unit tests
-        run: npm test
-
-      - name: Run integration tests
-        run: npm run integration:test
+      - run: npm test
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
