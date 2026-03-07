@@ -2,8 +2,8 @@ import { buildClassificationPrompt } from "./prompt-builder"
 import { callAI } from "./provider"
 import { ClassificationSchema } from "./schema"
 import { fallbackClassification } from "./fallback"
+import { AI_CONFIDENCE_THRESHOLD } from "./config"
 
-const CONFIDENCE_THRESHOLD = 0.7
 const AI_TIMEOUT = 3000
 
 export async function classifyTicket(title: string, description: string) {
@@ -34,7 +34,7 @@ export async function classifyTicket(title: string, description: string) {
     return fallbackClassification(title, description)
   }
 
-  if (parsed.confidence < CONFIDENCE_THRESHOLD) {
+  if (parsed.confidence < AI_CONFIDENCE_THRESHOLD) {
     return fallbackClassification(title, description)
   }
 
