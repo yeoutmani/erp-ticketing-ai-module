@@ -137,4 +137,24 @@ describe('AI Classification TDD', () => {
 
     expect(result.priority).toBe("high")
   })
+
+  it("triggers fallback when AI confidence is below threshold", async () => {
+
+    mockAI.mockResolvedValue(
+      JSON.stringify({
+        priority: "high",
+        category: "incident",
+        confidence: 0.60
+      })
+    )
+
+    const result = await classifyTicket("Server down urgent", "")
+
+    expect(result).toEqual({
+      priority: "high",
+      category: "technical",
+      confidence: 0
+    })
+
+  })
 })
