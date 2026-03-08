@@ -1,10 +1,10 @@
 import { createClient } from "@supabase/supabase-js"
 import { generateEmbedding } from "../ai/embeddings.js"
-import 'dotenv/config'
+import  { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "../ai/config.js"
 
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY
 )
 
 async function run() {

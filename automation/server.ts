@@ -1,29 +1,30 @@
 import express from "express"
-import { generateEmbedding } from "./ai/embeddings"
+import { classifyTicket } from "./ai/classifier"
 
 const app = express()
 
 app.use(express.json())
 
-app.post("/automation/embedding", async (req, res) => {
+app.post("/automation/classify", async (req, res) => {
+
   try {
 
     const { title, description } = req.body
 
-    const embedding = await generateEmbedding(`${title} ${description}`)
+    const result = await classifyTicket(title, description)
 
-    res.json({
-      embedding
-    })
+    res.json(result)
 
   } catch (error) {
 
-    console.error("Embedding error:", error)
+    console.error("Classification error:", error)
 
     res.status(500).json({
-      error: "embedding_failed"
+      error: "classification_failed"
     })
+
   }
+
 })
 
 const PORT = 3000

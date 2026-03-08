@@ -1,9 +1,10 @@
 import { createClient } from "@supabase/supabase-js"
 import { toVector } from "./vector"
-import 'dotenv/config'
+import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "./config"
+
 const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY
 )
 
 export async function retrieveContext(queryEmbedding: number[]) {

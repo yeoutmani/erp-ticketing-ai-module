@@ -2,21 +2,33 @@ import { buildClassificationPrompt } from "./prompt-builder"
 import { callAI } from "./provider"
 import { ClassificationSchema } from "./schema"
 import { fallbackClassification } from "./fallback"
-import { AI_CONFIDENCE_THRESHOLD } from "./config"
+import { AI_CONFIDENCE_THRESHOLD, AI_TIMEOUT } from "./config"
 import { generateEmbedding } from "./embeddings"
 import { retrieveContext } from "./retrieve-context"
 
-const AI_TIMEOUT = 3000
+function extractJSON(text: string) {
+  const match = text.match(/\{[\s\S]*\}/)
+  return match ? match[0] : null
+}
 
 export async function classifyTicket(title: string, description: string) {
 
-  const embedding = await generateEmbedding(`${title} ${description}`)
-  const contextDocs = await retrieveContext(embedding)
-  const context = contextDocs
-    .slice(0, 3)
-    .map((d: any) => d.content)
-    .join("\n")
-  
+  let context = ""
+
+  try {
+
+    const embedding = await generateEmbedding(`${title} ${description}`)
+    const contextDocs = await retrieveContext(embedding)
+
+    context = contextDocs
+      .slice(0, 3)
+      .map((d: any) => d.content)
+      .join("\n")
+
+  } catch (err) {
+    console.warn("RAG retrieval failed, continuing without context")
+  }
+
   const prompt = buildClassificationPrompt({
     title,
     description,
@@ -34,20 +46,33 @@ export async function classifyTicket(title: string, description: string) {
       )
     ])
 
-  } catch {
+  } catch (err) {
+    console.warn("AI call failed:", err)
     return fallbackClassification(title, description)
   }
 
   let parsed
 
   try {
-    const json = JSON.parse(raw)
+
+    const jsonString = extractJSON(raw)
+
+    if (!jsonString) {
+      throw new Error("No JSON found in AI response")
+    }
+
+    const json = JSON.parse(jsonString)
+
     parsed = ClassificationSchema.parse(json)
-  } catch {
+
+  } catch (err) {
+    console.warn("Invalid AI JSON:", raw)
     return fallbackClassification(title, description)
+
   }
 
   if (parsed.confidence < AI_CONFIDENCE_THRESHOLD) {
+    console.warn("Low AI confidence:", parsed)
     return fallbackClassification(title, description)
   }
 
