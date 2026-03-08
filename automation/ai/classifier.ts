@@ -3,12 +3,25 @@ import { callAI } from "./provider"
 import { ClassificationSchema } from "./schema"
 import { fallbackClassification } from "./fallback"
 import { AI_CONFIDENCE_THRESHOLD } from "./config"
+import { generateEmbedding } from "./embeddings"
+import { retrieveContext } from "./retrieve-context"
 
 const AI_TIMEOUT = 3000
 
 export async function classifyTicket(title: string, description: string) {
 
-  const prompt = buildClassificationPrompt({ title, description })
+  const embedding = await generateEmbedding(`${title} ${description}`)
+  const contextDocs = await retrieveContext(embedding)
+  const context = contextDocs
+    .slice(0, 3)
+    .map((d: any) => d.content)
+    .join("\n")
+  
+  const prompt = buildClassificationPrompt({
+    title,
+    description,
+    context
+  })
 
   let raw: string
 

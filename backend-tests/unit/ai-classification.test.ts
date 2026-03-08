@@ -2,6 +2,16 @@ jest.mock('../../automation/ai/provider', () => ({
   callAI: jest.fn()
 }))
 
+jest.mock('../../automation/ai/retrieve-context', () => ({
+  retrieveContext: jest.fn().mockResolvedValue([])
+}))
+
+jest.mock('../../automation/ai/embeddings', () => ({
+  generateEmbedding: jest.fn().mockResolvedValue(
+    new Array(768).fill(0.1)
+  )
+}))
+
 import { callAI } from '../../automation/ai/provider'
 import { classifyTicket } from '../../automation/ai/classifier'
 import { buildClassificationPrompt } from '../../automation/ai/prompt-builder'
@@ -12,6 +22,11 @@ describe('AI Classification TDD', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  afterEach(() => {
+    jest.clearAllTimers()
+    jest.useRealTimers()
   })
 
   it('classifies urgent server issue as high priority', async () => {
@@ -120,13 +135,22 @@ describe('AI Classification TDD', () => {
 
   it("falls back when AI times out", async () => {
 
+    jest.useFakeTimers()
+
     mockAI.mockImplementation(
       () => new Promise(() => {})
     )
 
-    const result = await classifyTicket("Server down urgent", "")
+    const promise = classifyTicket("Server down urgent", "")
+
+    await jest.runAllTimersAsync()
+
+    const result = await promise
 
     expect(result.priority).toBe("high")
+
+    jest.useRealTimers()
+
   })
 
   it("falls back when AI service fails", async () => {

@@ -1,11 +1,11 @@
 import ollama from "ollama"
 
-export async function generateEmbedding(text: string) {
+export async function generateEmbedding(text: string): Promise<number[]> {
 
   const response = await ollama.embeddings({
     model: "nomic-embed-text",
     prompt: text
   })
 
-  return response.embedding
+  return response.embedding as number[]
 }

@@ -6,7 +6,11 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "generate:embeddings": "tsx automation/scripts/generate-embeddings.ts"
+    "generate:embeddings": "tsx automation/scripts/generate-embeddings.ts",
+    "debug:classifier": "tsx automation/scripts/debug/test-classifier.ts",
+    "debug:embedding": "tsx automation/scripts/debug/test-embedding.ts",
+    "debug:retrieval": "tsx automation/scripts/debug/test-retrieval.ts",
+    "debug:prompt": "tsx automation/scripts/debug/test-prompt.ts"
   },
   "lint-staged": {
     "frontend/**/*.{ts,tsx,js}": [
