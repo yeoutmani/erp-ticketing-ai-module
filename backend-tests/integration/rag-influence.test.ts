@@ -1,3 +1,19 @@
+jest.mock('../../automation/ai/embeddings', () => ({
+  generateEmbedding: jest.fn().mockResolvedValue(
+    new Array(768).fill(0.1)
+  )
+}))
+
+jest.mock('../../automation/ai/provider', () => ({
+  callAI: jest.fn().mockResolvedValue(
+    JSON.stringify({
+      priority: "high",
+      category: "incident",
+      confidence: 0.9
+    })
+  )
+}))
+
 import { classifyTicket } from "../../automation/ai/classifier"
 import * as provider from "../../automation/ai/provider"
 
