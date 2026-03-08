@@ -1,0 +1,386 @@
+{
+  "name": "ticket-automation-phase5-validate-ai-response",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/tickets?id=eq.{{$node[\"Ticket Created Trigger\"].json.body.id}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "priority",
+              "value": "={{$json.priority}}"
+            },
+            {
+              "name": "category",
+              "value": "={{$json.category}}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "b4b693a3-ee24-47e1-863d-e0d98ecede67",
+      "name": "Update Ticket (PATCH)",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "Knvgz3bkwhepZsRn",
+          "name": "auth supabase"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "=={{\n(() => {\n  const item = $json.body ?? {}\n\n  const created = item.created_at\n    ? new Date(item.created_at)\n    : null\n\n  return Object.assign({}, item, {\n    execution_finished_at: $now,\n    latency_ms: created\n      ? Date.now() - created.getTime()\n      : null\n  })\n})()\n}}",
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        992,
+        -176
+      ],
+      "id": "1c531807-cdc7-4eb0-850e-9bf18a19ea97",
+      "name": "Compute Execution Metrics"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ticket-created",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -256,
+        16
+      ],
+      "id": "b61baec9-acc5-4ce8-8aad-59c961831030",
+      "name": "Ticket Created Trigger",
+      "webhookId": "ce7c3eaf-7950-4702-9138-21017b5ee270"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/automation_logs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  ticket_id: $json.id,\n  latency_ms: $json.latency_ms,\n  execution_finished_at: $json.execution_finished_at,\n  status: \"success\"\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1184,
+        -176
+      ],
+      "id": "a1928b6b-a5d1-44be-9d24-aff72bc29ba3",
+      "name": "Insert Automation Log",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "Knvgz3bkwhepZsRn",
+          "name": "auth supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "28713006-57fc-43e9-984e-4983f13e9144",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        736,
+        0
+      ],
+      "id": "3516177c-f0cb-466a-b9a0-4f8a809214e8",
+      "name": "Check Patch Success"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/automation_logs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  ticket_id: $json.ticket_id ?? $json.id,\n  status: \"error\",\n  error: JSON.stringify($json),\n  created_at: $now\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        992,
+        144
+      ],
+      "id": "14d7ed65-5473-45bd-989a-b5d4d4358d08",
+      "name": "Insert Error Log",
+      "alwaysOutputData": true,
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "Knvgz3bkwhepZsRn",
+          "name": "auth supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/automation/classify",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  \"title\": $json.body.title,\n  \"description\": $json.body.description\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -32,
+        16
+      ],
+      "id": "b565322f-c40c-4198-a9e6-8a8b2c8034f1",
+      "name": "Call Backend Classification"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"priority\": \"medium\",\n  \"category\": \"technical\",\n  \"confidence\": 0\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        352,
+        176
+      ],
+      "id": "2e91bc5a-98d4-41fc-9890-5deca46c1bb2",
+      "name": "Fallback Classification"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6894bd4b-a705-4842-895c-e1baf0fb2385",
+              "leftValue": "={{ $json.priority }}",
+              "rightValue": "undefined",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "f3c2c120-a804-44a5-9da8-a09a5b1152a6",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "undefined",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        176,
+        16
+      ],
+      "id": "bf439b5e-6774-410b-ab8e-d6a41603aed1",
+      "name": "Validate AI Response"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Update Ticket (PATCH)": {
+      "main": [
+        [
+          {
+            "node": "Check Patch Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Execution Metrics": {
+      "main": [
+        [
+          {
+            "node": "Insert Automation Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket Created Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call Backend Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Patch Success": {
+      "main": [
+        [
+          {
+            "node": "Compute Execution Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert Error Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Backend Classification": {
+      "main": [
+        [
+          {
+            "node": "Validate AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback Classification": {
+      "main": [
+        [
+          {
+            "node": "Update Ticket (PATCH)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate AI Response": {
+      "main": [
+        [
+          {
+            "node": "Update Ticket (PATCH)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c6621e52-9548-454a-a2a2-6dd31bc097d4",
+  "meta": {
+    "instanceId": "2ff23050cbe6f011dba463f928eea36d3a5e642f735054dc3fd4d1348aac2a24"
+  },
+  "id": "dLIZ1ViTI0iFREpF",
+  "tags": []
+}
