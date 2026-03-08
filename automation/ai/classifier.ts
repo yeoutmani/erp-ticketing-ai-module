@@ -6,7 +6,7 @@ import { AI_CONFIDENCE_THRESHOLD } from "./config"
 import { generateEmbedding } from "./embeddings"
 import { retrieveContext } from "./retrieve-context"
 
-const AI_TIMEOUT = 30000
+const AI_TIMEOUT = 3000
 
 export async function classifyTicket(title: string, description: string) {
 
