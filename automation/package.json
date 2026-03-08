@@ -5,14 +5,24 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx server.ts"
+    "dev": "tsx server.ts",
+    "generate:embeddings": "tsx scripts/generate-embeddings.ts",
+    "debug:classifier": "tsx /scripts/debug/test-classifier.ts",
+    "debug:embedding": "tsx scripts/debug/test-embedding.ts",
+    "debug:retrieval": "tsx scripts/debug/test-retrieval.ts",
+    "debug:prompt": "tsx scripts/debug/test-prompt.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "express": "^5.2.1"
+    "@supabase/supabase-js": "^2.98.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "ollama": "^0.6.3",
+    "tsx": "^4.21.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/express": "^5.0.6"
