@@ -207,7 +207,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n \"title\": \"{{$json.body.title}}\",\n \"description\": \"{{$json.body.description}}\"\n}",
+        "jsonBody": "={{\n{\n  \"title\": $json.body.title,\n  \"description\": $json.body.description\n}\n}}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -291,7 +291,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "1547f92e-5bd5-4d48-a970-973146d40cb2",
+  "versionId": "929de5fd-51be-4cf9-9fe3-1db1727d66f7",
   "meta": {
     "instanceId": "2ff23050cbe6f011dba463f928eea36d3a5e642f735054dc3fd4d1348aac2a24"
   },
