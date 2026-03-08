@@ -44,7 +44,9 @@ export default function TicketForm({
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        id: data.id
+        id: data.id,
+        title: data.title,
+        description: data.description
       })
     })
 
