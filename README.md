@@ -124,6 +124,34 @@ This project demonstrates:
 
 ---
 
+## Test Strategy
+
+### Unit Tests
+- AI classification logic
+- JSON schema validation
+- fallback behavior
+- timeout handling
+- prompt regression tests
+
+### Integration Tests
+- AI classify API endpoint
+- RAG context influence
+- Supabase Row Level Security multi-tenant isolation
+
+### End-to-End Validation
+- Ticket creation triggers webhook
+- n8n automation pipeline execution
+- AI classification response handling
+- Ticket update in database
+
+### Debug Scripts
+- embedding generation
+- prompt builder
+- ollama provider
+- retrieval pipeline
+
+---
+
 ##  Author
 
 Yassine El Outmani
