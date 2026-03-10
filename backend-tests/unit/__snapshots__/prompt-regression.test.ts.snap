@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`AI Prompt Regression should keep prompt structure stable 1`] = `
+"
+        You are an AI system responsible for classifying SAV support tickets.
+
+        You MUST return ONLY valid JSON.
+        Do NOT include explanations, comments, or markdown.
+
+        Allowed priority values:
+        - high
+        - medium
+        - low
+
+        Allowed category values:
+        - incident
+        - billing
+        - technical
+        - feature
+        - general
+
+        Output JSON format:
+        {
+          "priority": "high | medium | low",
+          "category": "incident | billing | technical | feature | general",
+          "confidence": number between 0 and 1
+        }
+
+        Use the historical SAV tickets below as reference examples.
+
+        Historical SAV context:
+        Historical incident: server outage
+
+        Now classify the following ticket.
+
+        Ticket:
+        Title: Server down urgent
+        Description: Production API returns 500
+
+        Return structured JSON only.
+      "
+`;

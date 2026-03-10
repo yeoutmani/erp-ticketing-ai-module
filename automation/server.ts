@@ -1,7 +1,8 @@
 import express from "express"
 import { classifyTicket } from "./ai/classifier"
+import "dotenv/config"
 
-const app = express()
+export const app = express()
 
 app.use(express.json())
 
@@ -22,13 +23,14 @@ app.post("/automation/classify", async (req, res) => {
     res.status(500).json({
       error: "classification_failed"
     })
-
   }
 
 })
 
 const PORT = 3000
 
-app.listen(PORT, () => {
-  console.log(`Automation API running on port ${PORT}`)
-})
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Automation API running on port ${PORT}`)
+  })
+}
