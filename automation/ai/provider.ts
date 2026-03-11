@@ -5,13 +5,23 @@ export interface AIProvider {
 }
 
 export async function callAI(prompt: string): Promise<string> {
+  const startTime = Date.now()
 
-  const response = await ollama.chat({
-    model: "llama3",
-    messages: [
-      { role: "user", content: prompt }
-    ]
-  })
+  try {
+    const response = await ollama.chat({
+      model: "llama3",
+      messages: [
+        { role: "user", content: prompt }
+      ]
+    })
 
-  return response.message.content
+    const duration = Date.now() - startTime
+    console.log(`AI call completed in ${duration}ms`)
+
+    return response.message.content
+  } catch (error) {
+    const duration = Date.now() - startTime
+    console.error(`AI call failed after ${duration}ms:`, error)
+    throw error
+  }
 }

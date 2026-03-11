@@ -10,7 +10,8 @@
     "debug:classifier": "tsx /scripts/debug/test-classifier.ts",
     "debug:embedding": "tsx scripts/debug/test-embedding.ts",
     "debug:retrieval": "tsx scripts/debug/test-retrieval.ts",
-    "debug:prompt": "tsx scripts/debug/test-prompt.ts"
+    "debug:prompt": "tsx scripts/debug/test-prompt.ts",
+    "debug:monitoring": "tsx scripts/debug/test-monitoring.ts"
   },
   "keywords": [],
   "author": "",
