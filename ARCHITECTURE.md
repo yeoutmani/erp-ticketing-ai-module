@@ -13,7 +13,7 @@ Ensure project clarity and maintainability.
 ```mermaid
 flowchart LR
   U[User] -->|HTTPS| FE[React SPA]
-  FE -->|Auth + Data (JWT)| SB[Supabase]
+  FE -->|"Auth & data (JWT)"| SB[Supabase]
 
   subgraph Supabase
     AUTH[Auth]
@@ -25,12 +25,12 @@ flowchart LR
 
   FE <--> RT
   FE --> DB
-  EF -->|Webhook| N8N[n8n Workflows]
-  N8N -->|HTTP| AISVC[AI Service (Node/Express)]
-  AISVC -->|SQL| DB
+  EF -->|"Webhook"| N8N[n8n Workflows]
+  N8N -->|"HTTP"| AISVC["AI Service (Node/Express)"]
+  AISVC -->|"SQL"| DB
   DB --- VEC
-  AISVC -->|LLM| OLLAMA[Ollama (local)]
-  AISVC -->|Fallback| OPENAI[OpenAI API]
+  AISVC -->|"LLM"| OLLAMA["Ollama (local)"]
+  AISVC -->|"Fallback"| OPENAI["OpenAI API"]
 ```
 
 ## Stack decisions (and why)
@@ -85,17 +85,17 @@ Use vector similarity (pgvector) to fetch the most relevant historical/support c
 ```mermaid
 sequenceDiagram
   participant FE as React SPA
-  participant SB as Supabase (DB/RLS)
+  participant SB as Supabase (DB + RLS)
   participant N8N as n8n
   participant AI as AI Service
   participant V as pgvector
-  participant L as LLM (Ollama/OpenAI)
+  participant L as LLM (Ollama or OpenAI)
 
   FE->>SB: Create ticket (JWT)
   SB-->>N8N: Trigger workflow (ticket created)
   N8N->>AI: POST /automation/classify (ticket payload)
   AI->>V: Similarity search (top K context)
-  AI->>L: Prompt(ticket + retrieved context) + JSON schema
+  AI->>L: Prompt with retrieved context + JSON schema
   L-->>AI: Classification JSON
   AI->>AI: Validate schema + confidence threshold
   AI-->>N8N: classification result (+ confidence)
@@ -111,6 +111,8 @@ sequenceDiagram
 - **Context limits**: cap retrieved chunks; never mix tenant data across orgs.
 
 ## n8n automation flow
+
+<img width="1700" height="565" alt="Capture d’écran 2026-03-11 à 02 24 34" src="https://github.com/user-attachments/assets/2f3c7c04-fba3-4011-955e-f48cb63fd866" />
 
 ### Responsibilities
 
