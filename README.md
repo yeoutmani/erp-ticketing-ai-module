@@ -4,6 +4,12 @@ A production-style mini ERP module demonstrating a secure multi-tenant Ticketing
 
 ---
 
+## Documentation
+
+- **Architecture (diagram, RLS, AI/RAG, n8n, deployment, security, decisions)**: see `ARCHITECTURE.md`
+
+---
+
 ## Overview
 
 This project implements a scalable and secure SaaS-ready ticketing module including:
@@ -17,15 +23,71 @@ This project implements a scalable and secure SaaS-ready ticketing module includ
 
 ---
 
+## Run locally (development)
+
+### Prerequisites
+
+- Node.js + npm
+- Docker (for n8n)
+- A Supabase project (URL + keys)
+
+### 1) Configure environment variables
+
+```bash
+# Frontend (Next.js)
+cp frontend/.env.exemple frontend/.env.local
+
+# Automation (AI service + n8n)
+cp automation/.env.example automation/.env
+```
+
+Update the values inside:
+- `frontend/.env.local`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `automation/.env`: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `N8N_ENCRYPTION_KEY`, basic auth credentials, etc.
+
+### 2) Start n8n (Docker)
+
+```bash
+docker compose -f automation/docker-compose.yml --env-file automation/.env up -d
+```
+
+n8n will be available at `http://localhost:5678` (by default).
+
+### 3) Start the AI service (automation API)
+
+```bash
+cd automation
+npm install
+npm run dev
+```
+
+This service currently listens on `http://localhost:3000` and exposes:
+- `POST /automation/classify`
+- `GET /monitoring/*`
+- `GET /health`
+
+### 4) Start the frontend (Next.js)
+
+The AI service uses port `3000`, so run Next.js on a different port:
+
+```bash
+cd frontend
+npm install
+npm run dev -- -p 3001
+```
+
+Open `http://localhost:3001`.
+
+---
+
 ## Architecture
 
 ### Stack
 
-- **Supabase** – PostgreSQL, Auth, RLS
-- **React** – UI (list + creation)
-- **n8n** – Workflow automation
-- **LLM (Ollama / OpenAI)** – AI classification
-- **pgvector** – Embeddings storage
+- **Frontend**: React + TypeScript
+- **Backend**: Supabase (Auth + Postgres + RLS + Realtime) + AI service (Node/Express)
+- **Automation**: n8n
+- **AI**: RAG using `pgvector`; Ollama as primary inference with optional OpenAI fallback
 
 ### Flow
 
@@ -45,9 +107,9 @@ Each ticket belongs to an `org_id`.
 
 Row Level Security policies ensure:
 
-- Users can only access tickets within their organization.
-- Insert and update operations are restricted by org context.
-- Isolation enforced at database level (not only in frontend).
+ - Users can only access tickets within their organization.
+ - Insert and update operations are restricted by org context.
+ - Isolation enforced at database level (not only in frontend).
 
 ---
 
@@ -95,7 +157,7 @@ Row Level Security policies ensure:
 
 ---
 
-##  Monitoring & Observability
+## Monitoring & Observability
 
 - Supabase logs
 - AI latency & error monitoring
@@ -104,18 +166,19 @@ Row Level Security policies ensure:
 
 ---
 
-##  Deployment
+## Deployment
 
 - Dockerized services
-- Environment-based configuration (.env.example included)
+- Environment-based configuration (`.env.example` included)
 - Versioned database migrations
 - Staging & production separation
 
 ---
 
-##  Project Goals
+## Project Goals
 
 This project demonstrates:
+
 - SaaS multi-tenant architecture
 - Secure data isolation (RLS)
 - Workflow automation
@@ -127,6 +190,7 @@ This project demonstrates:
 ## Test Strategy
 
 ### Unit Tests
+
 - AI classification logic
 - JSON schema validation
 - fallback behavior
@@ -134,17 +198,20 @@ This project demonstrates:
 - prompt regression tests
 
 ### Integration Tests
+
 - AI classify API endpoint
 - RAG context influence
 - Supabase Row Level Security multi-tenant isolation
 
 ### End-to-End Validation
+
 - Ticket creation triggers webhook
 - n8n automation pipeline execution
 - AI classification response handling
 - Ticket update in database
 
 ### Debug Scripts
+
 - embedding generation
 - prompt builder
 - ollama provider
@@ -152,8 +219,8 @@ This project demonstrates:
 
 ---
 
-##  Author
+## Author
 
-Yassine El Outmani
-Senior Full-Stack Engineer – AI & Data Systems
+Yassine El Outmani  
+Senior Full-Stack Engineer – AI & Data Systems  
 Morocco – Open to international & national opportunities
