@@ -159,5 +159,5 @@ export async function classifyTicket(title: string, description: string) {
     `Classification succeeded for execution ${executionId}: ${parsed.category}/${parsed.priority} (confidence: ${parsed.confidence})`
   )
 
-  return { ...parsed, _executionId: executionId }
+  return parsed
 }
