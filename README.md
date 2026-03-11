@@ -61,10 +61,7 @@ npm install
 npm run dev
 ```
 
-This service currently listens on `http://localhost:3000` and exposes:
-- `POST /automation/classify`
-- `GET /monitoring/*`
-- `GET /health`
+This service listens on `http://localhost:3000`. See **Exposed API Endpoints** below.
 
 ### 4) Start the frontend (Next.js)
 
@@ -77,6 +74,60 @@ npm run dev -- -p 3001
 ```
 
 Open `http://localhost:3001`.
+
+---
+
+## Exposed API Endpoints
+
+### Main classification endpoint
+
+- **Endpoint**: `POST /automation/classify`
+- **Purpose**: Classifies tickets using the AI + RAG workflow.
+- **Input**:
+
+```json
+{ "title": "string", "description": "string"}
+```
+
+- **Output (200)**:
+
+```json
+{ "priority": "string", "category": "string", "confidence": 0 }
+```
+
+- **Error (500)**:
+
+```json
+{ "error": "classification_failed" }
+```
+
+> Note: the service generates an internal `executionId` for monitoring correlation, but it is not returned by this endpoint in the current implementation.
+
+### Monitoring endpoints
+
+- **Purpose**: Debug and observe the AI workflow (execution timeline, latency, errors, fallbacks).
+
+- **Execution timeline**: `GET /monitoring/execution/:executionId`  
+  Output: full event log with timestamps, metrics, and context.
+
+- **AI latency statistics**: `GET /monitoring/latency?hours=24&ticketId=<optional>`  
+  Output: aggregated latency metrics for the selected period.
+
+- **Error distribution**: `GET /monitoring/errors?hours=24`  
+  Output: error counts grouped by type.
+
+- **Fallback usage**: `GET /monitoring/fallbacks?hours=24`  
+  Output: fallback reason distribution.
+
+### Health check
+
+- **Endpoint**: `GET /health`
+- **Purpose**: System health check.
+- **Output**:
+
+```json
+{ "status": "healthy", "timestamp": "string" }
+```
 
 ---
 
