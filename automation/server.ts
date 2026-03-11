@@ -41,7 +41,7 @@ app.post("/automation/classify", async (req, res) => {
       confidence: result.confidence
     }).catch(err => console.error("Background logging error:", err))
 
-    res.json({ ...result, executionId })
+    res.json(result)
   } catch (error) {
     console.error("Classification error:", error)
 
@@ -51,8 +51,7 @@ app.post("/automation/classify", async (req, res) => {
     }).catch(err => console.error("Background logging error:", err))
 
     res.status(500).json({
-      error: "classification_failed",
-      executionId
+      error: "classification_failed"
     })
   }
 })
