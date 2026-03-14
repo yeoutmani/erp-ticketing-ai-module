@@ -1,4 +1,4 @@
-import ollama from "ollama"
+import { ollama } from "./ollama-client" 
 
 export interface AIProvider {
   call(prompt: string): Promise<string>

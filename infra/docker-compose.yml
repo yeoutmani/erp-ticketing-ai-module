@@ -1,0 +1,93 @@
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+      - automation
+      - n8n
+    networks: [erp_network]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build: 
+      context: ..
+      dockerfile: infra/frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    networks: [erp_network]
+    restart: unless-stopped
+
+  automation:
+    build:
+      context: ..
+      dockerfile: infra/automation/Dockerfile
+    environment:
+      # Supabase
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # n8n
+      N8N_PORT: ${N8N_PORT:-5678}
+      N8N_HOST: "0.0.0.0"
+      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: ${N8N_BLOCK_ENV_ACCESS_IN_NODE:-false}
+      # AI
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-30000}
+      AI_CONFIDENCE_THRESHOLD: ${AI_CONFIDENCE_THRESHOLD:-0.75}
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3}
+    depends_on:
+      - ollama
+    networks: [erp_network]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: n8nio/n8n:latest
+    environment:
+      N8N_PORT: ${N8N_PORT:-5678}
+      N8N_HOST: "0.0.0.0"
+      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE}
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: ${N8N_BLOCK_ENV_ACCESS_IN_NODE:-false}
+      N8N_PATH: ${N8N_PATH}
+      WEBHOOK_URL: ${WEBHOOK_URL}
+      AUTOMATION_URL: http://automation:3000
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks: [erp_network]
+    restart: unless-stopped
+
+  ollama:
+    build: ./ollama
+    volumes:
+      - ollama_models:/root/.ollama
+    networks: [erp_network]
+    restart: unless-stopped
+
+volumes:
+  n8n_data:
+  ollama_models:
+  nginx_certs:
+
+networks:
+  erp_network:
+    driver: bridge

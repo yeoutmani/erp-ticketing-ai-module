@@ -1,4 +1,4 @@
-import ollama from "ollama"
+import { ollama } from "./ollama-client" 
 
 export async function generateEmbedding(text: string): Promise<number[]> {
 
