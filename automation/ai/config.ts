@@ -11,3 +11,6 @@ export const SUPABASE_URL =
 
 export const SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+export const OLLAMA_BASE_URL =
+  process.env.OLLAMA_BASE_URL ?? "http://localhost:11434"
