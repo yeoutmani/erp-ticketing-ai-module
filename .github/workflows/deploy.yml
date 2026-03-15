@@ -21,18 +21,12 @@ jobs:
           version: latest
 
       - name: Link Supabase project
-        run: |
-          supabase link \
-            --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} \
-            --workdir supabase
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --workdir supabase
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Run migrations
-        run: |
-          supabase db push \
-            --linked \
-            --workdir supabase
+        run: supabase db push --linked --include-all --workdir supabase
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
