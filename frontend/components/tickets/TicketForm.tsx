@@ -38,11 +38,9 @@ export default function TicketForm({
       return
     }
 
-    await fetch('http://localhost:5678/webhook/ticket-created', {
+    await fetch(`${process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL}/ticket-created`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: data.id,
         title: data.title,
