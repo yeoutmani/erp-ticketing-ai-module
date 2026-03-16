@@ -140,7 +140,7 @@ jobs:
             OLLAMA_EMBED_MODEL=${{ secrets.OLLAMA_EMBED_MODEL }}
             ERP_DOMAIN=${{ secrets.ERP_DOMAIN }}
             IMAGE_PREFIX=ghcr.io/${{ github.repository_owner }}
-            IMAGE_TAG=${{ github.sha }}
+            IMAGE_TAG=${{ secrets.IMAGE_TAG }}
             EOF
 
             # Log in to ghcr.io on the server
