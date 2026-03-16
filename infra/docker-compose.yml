@@ -96,6 +96,7 @@ services:
       - ollama_models:/root/.ollama
     networks:
       - erp_network
+      - traefik_public
     restart: unless-stopped
 
 volumes:
