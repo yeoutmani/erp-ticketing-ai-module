@@ -6,7 +6,6 @@ networks:
 
 services:
   frontend:
-    image: ${IMAGE_PREFIX}/erp-frontend:${IMAGE_TAG}
     build:
       context: ..
       dockerfile: infra/frontend/Dockerfile
@@ -29,7 +28,6 @@ services:
       - "traefik.http.services.erp.loadbalancer.server.port=3000"
 
   automation:
-    image: ${IMAGE_PREFIX}/erp-automation:${IMAGE_TAG}
     build:
       context: ..
       dockerfile: infra/automation/Dockerfile
