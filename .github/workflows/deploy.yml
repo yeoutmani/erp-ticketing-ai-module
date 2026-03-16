@@ -7,9 +7,9 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # ── 1. Run migrations ───────────────────────────────────────────────
   migrate:
     name: Supabase migrations
     runs-on: ubuntu-latest
@@ -38,7 +38,6 @@ jobs:
           echo "Migrations failed but deploy continues."
           echo "Check Supabase dashboard manually."
 
-  # ── 2. Build and push images ────────────────────────────────────────
   build:
     name: Build & push Docker images
     runs-on: ubuntu-latest
@@ -58,7 +57,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}   # ← automatic, no secret needed
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push frontend
         uses: docker/build-push-action@v5
@@ -66,9 +65,7 @@ jobs:
           context: .
           file: infra/frontend/Dockerfile
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/erp-frontend:latest
-            ${{ env.IMAGE_PREFIX }}/erp-frontend:${{ github.sha }}
+          tags: ${{ env.IMAGE_PREFIX }}/erp-ticketing-ai-module/frontend:main
           build-args: |
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -81,13 +78,10 @@ jobs:
           context: .
           file: infra/automation/Dockerfile
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/erp-automation:latest
-            ${{ env.IMAGE_PREFIX }}/erp-automation:${{ github.sha }}
+          tags: ${{ env.IMAGE_PREFIX }}/erp-ticketing-ai-module/automation:main
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── 3. Deploy to VPS ────────────────────────────────────────────────
   deploy:
     name: Deploy to VPS
     runs-on: ubuntu-latest
@@ -96,6 +90,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create deploy directory
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: mkdir -p ${{ secrets.VPS_DEPLOY_PATH }}
+
       - name: Copy infra files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -103,9 +106,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          source: "infra/docker-compose.yml,infra/nginx,infra/ollama,infra/n8n,infra/scripts"
+          source: "infra/docker-compose.yml,infra/ollama,infra/n8n,infra/scripts"
           target: ${{ secrets.VPS_DEPLOY_PATH }}
-          strip_components: 1   # removes "infra/" prefix on server
+          strip_components: 1
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -113,11 +116,10 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }} 
+          port: ${{ secrets.VPS_PORT }}
           script: |
             cd ${{ secrets.VPS_DEPLOY_PATH }}
 
-            # Write .env from secrets
             cat > .env << EOF
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -132,7 +134,7 @@ jobs:
             N8N_ENCRYPTION_KEY=${{ secrets.N8N_ENCRYPTION_KEY }}
             N8N_BLOCK_ENV_ACCESS_IN_NODE=false
             N8N_PATH=/n8n/
-            WEBHOOK_URL=http://${{ secrets.ERP_DOMAIN }}/n8n/
+            WEBHOOK_URL=https://${{ secrets.ERP_DOMAIN }}/n8n/
             AI_TIMEOUT_MS=${{ secrets.AI_TIMEOUT_MS }}
             AI_CONFIDENCE_THRESHOLD=${{ secrets.AI_CONFIDENCE_THRESHOLD }}
             OLLAMA_BASE_URL=http://ollama:11434
@@ -140,24 +142,23 @@ jobs:
             OLLAMA_EMBED_MODEL=${{ secrets.OLLAMA_EMBED_MODEL }}
             ERP_DOMAIN=${{ secrets.ERP_DOMAIN }}
             IMAGE_PREFIX=ghcr.io/${{ github.repository_owner }}
-            IMAGE_TAG=${{ secrets.IMAGE_TAG }}
             EOF
 
-            # Log in to ghcr.io on the server
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io \
               -u ${{ github.actor }} --password-stdin
 
-            # Pull images
+            # Pull registry images
             docker compose pull frontend automation
 
-            # Start containers
+            # Build ollama locally (not in registry)
+            docker compose build ollama
+
+            # Start everything
             docker compose up -d --no-build
 
-            # Wait for containers to be healthy before seeding
             echo "Waiting for services..."
             sleep 15
 
-            # Seed n8n only if n8n container is running
             if docker compose ps n8n | grep -q "running"; then
               bash scripts/seed-n8n.sh
             else
