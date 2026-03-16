@@ -87,18 +87,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push nginx
-        uses: docker/build-push-action@v5
-        with:
-          context: ./infra/nginx
-          file: infra/nginx/Dockerfile
-          push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/erp-nginx:latest
-            ${{ env.IMAGE_PREFIX }}/erp-nginx:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
   # ── 3. Deploy to VPS ────────────────────────────────────────────────
   deploy:
     name: Deploy to VPS
@@ -144,7 +132,7 @@ jobs:
             N8N_ENCRYPTION_KEY=${{ secrets.N8N_ENCRYPTION_KEY }}
             N8N_BLOCK_ENV_ACCESS_IN_NODE=false
             N8N_PATH=/n8n/
-            WEBHOOK_URL=http://${{ secrets.VPS_HOST }}/n8n/
+            WEBHOOK_URL=http://${{ secrets.ERP_DOMAIN }}/n8n/
             AI_TIMEOUT_MS=${{ secrets.AI_TIMEOUT_MS }}
             AI_CONFIDENCE_THRESHOLD=${{ secrets.AI_CONFIDENCE_THRESHOLD }}
             OLLAMA_BASE_URL=http://ollama:11434
@@ -160,7 +148,7 @@ jobs:
               -u ${{ github.actor }} --password-stdin
 
             # Pull new images and restart
-            docker compose pull frontend automation nginx
+            docker compose pull frontend automation
             docker compose up -d --no-build
 
             # Seed n8n workflows (skips existing)
