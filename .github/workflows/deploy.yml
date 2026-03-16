@@ -147,12 +147,21 @@ jobs:
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io \
               -u ${{ github.actor }} --password-stdin
 
-            # Pull new images and restart
+            # Pull images
             docker compose pull frontend automation
+
+            # Start containers
             docker compose up -d --no-build
 
-            # Seed n8n workflows (skips existing)
-            bash scripts/seed-n8n.sh
+            # Wait for containers to be healthy before seeding
+            echo "Waiting for services..."
+            sleep 15
 
-            # Cleanup old images
+            # Seed n8n only if n8n container is running
+            if docker compose ps n8n | grep -q "running"; then
+              bash scripts/seed-n8n.sh
+            else
+              echo "n8n not running, skipping seed"
+            fi
+
             docker image prune -f
