@@ -6,6 +6,7 @@ networks:
 
 services:
   frontend:
+    image: ghcr.io/yeoutmani/erp-ticketing-ai-module/frontend:main
     build:
       context: ..
       dockerfile: infra/frontend/Dockerfile
@@ -28,6 +29,7 @@ services:
       - "traefik.http.services.erp.loadbalancer.server.port=3000"
 
   automation:
+    image: ghcr.io/yeoutmani/erp-ticketing-ai-module/automation:main
     build:
       context: ..
       dockerfile: infra/automation/Dockerfile
@@ -71,7 +73,7 @@ services:
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
       N8N_BLOCK_ENV_ACCESS_IN_NODE: ${N8N_BLOCK_ENV_ACCESS_IN_NODE:-false}
       N8N_PATH: ${N8N_PATH:-/n8n/}
-      WEBHOOK_URL: ${WEBHOOK_URL:-https://${ERP_DOMAIN}/n8n/}
+      WEBHOOK_URL: ${WEBHOOK_URL}           # ← no nested default, set explicitly in .env
       AUTOMATION_URL: http://automation:3000
     volumes:
       - n8n_data:/home/node/.n8n
@@ -95,8 +97,7 @@ services:
     volumes:
       - ollama_models:/root/.ollama
     networks:
-      - erp_network
-      - traefik_public
+      - erp_network          # ← internal only, removed from traefik_public
     restart: unless-stopped
 
 volumes:
