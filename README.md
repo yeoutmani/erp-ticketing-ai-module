@@ -1,277 +1,164 @@
-# ERP Ticketing SAV – AI-Enabled Module
+# 🚀 AI-Powered ERP Ticketing Module (SaaS-Ready)
 
-A production-style mini ERP module demonstrating a secure multi-tenant Ticketing SAV system powered by Supabase, React, n8n automation, and AI classification (RAG-based).
-
----
-
-## Documentation
-
-- **Architecture (diagram, RLS, AI/RAG, n8n, deployment, security, decisions)**: see `ARCHITECTURE.md`
+Production-grade multi-tenant Ticketing SAV system powered by AI (RAG), Supabase, and workflow automation.
 
 ---
 
-## Overview
+## 🚀 Live Demo
 
-This project implements a scalable and secure SaaS-ready ticketing module including:
+👉 https://erp.qimora.app/
 
-- Multi-tenant PostgreSQL database with Row Level Security (RLS)
-- React frontend (ticket list + creation)
-- n8n workflow automation
-- AI-based ticket classification (priority + category)
-- Retrieval-Augmented Generation (RAG) to reduce hallucinations
-- Fallback logic & monitoring
+### Demo Credentials
+- Email: userb-1772581582917@test.com  
+- Password: password123  
 
 ---
 
-## Run locally (development)
+## 🎯 Overview
 
-### Prerequisites
+This project demonstrates a real-world SaaS architecture for a ticketing system enhanced with AI classification and automation.
 
-- Node.js + npm
-- Docker (for n8n)
-- A Supabase project (URL + keys)
+It is designed with production constraints in mind:
 
-### 1) Configure environment variables
-
-```bash
-# Frontend (Next.js)
-cp frontend/.env.exemple frontend/.env.local
-
-# Automation (AI service + n8n)
-cp automation/.env.example automation/.env
-```
-
-Update the values inside:
-- `frontend/.env.local`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `automation/.env`: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `N8N_ENCRYPTION_KEY`, basic auth credentials, etc.
-
-### 2) Start n8n (Docker)
-
-```bash
-docker compose -f automation/docker-compose.yml --env-file automation/.env up -d
-```
-
-n8n will be available at `http://localhost:5678` (by default).
-
-### 3) Start the AI service (automation API)
-
-```bash
-cd automation
-npm install
-npm run dev
-```
-
-This service listens on `http://localhost:3000`. See **Exposed API Endpoints** below.
-
-### 4) Start the frontend (Next.js)
-
-The AI service uses port `3000`, so run Next.js on a different port:
-
-```bash
-cd frontend
-npm install
-npm run dev -- -p 3001
-```
-
-Open `http://localhost:3001`.
+- Multi-tenant isolation (Row Level Security)
+- AI-powered ticket classification (RAG)
+- Workflow automation (n8n)
+- Observability & monitoring
+- Fault tolerance with fallback strategies
 
 ---
 
-## Exposed API Endpoints
+## 💡 Business Value
 
-### Main classification endpoint
-
-- **Endpoint**: `POST /automation/classify`
-- **Purpose**: Classifies tickets using the AI + RAG workflow.
-- **Input**:
-
-```json
-{ "title": "string", "description": "string"}
-```
-
-- **Output (200)**:
-
-```json
-{ "priority": "string", "category": "string", "confidence": 0 }
-```
-
-- **Error (500)**:
-
-```json
-{ "error": "classification_failed" }
-```
-
-> Note: the service generates an internal `executionId` for monitoring correlation, but it is not returned by this endpoint in the current implementation.
-
-### Monitoring endpoints
-
-- **Purpose**: Debug and observe the AI workflow (execution timeline, latency, errors, fallbacks).
-
-- **Execution timeline**: `GET /monitoring/execution/:executionId`  
-  Output: full event log with timestamps, metrics, and context.
-
-- **AI latency statistics**: `GET /monitoring/latency?hours=24&ticketId=<optional>`  
-  Output: aggregated latency metrics for the selected period.
-
-- **Error distribution**: `GET /monitoring/errors?hours=24`  
-  Output: error counts grouped by type.
-
-- **Fallback usage**: `GET /monitoring/fallbacks?hours=24`  
-  Output: fallback reason distribution.
-
-### Health check
-
-- **Endpoint**: `GET /health`
-- **Purpose**: System health check.
-- **Output**:
-
-```json
-{ "status": "healthy", "timestamp": "string" }
-```
+- 🚀 Reduce support response time via automatic ticket prioritization  
+- 🤖 Automate repetitive support workflows  
+- 📊 Improve ticket categorization accuracy using AI  
+- 🏢 Enable scalable SaaS multi-tenant architecture  
+- 💰 Cost-aware AI usage with fallback strategies  
 
 ---
 
-## Architecture
+## 🧠 Key Features
+
+- 🔐 Multi-tenant architecture (PostgreSQL + RLS)
+- 🤖 AI classification (priority + category)
+- 📚 RAG pipeline (pgvector + contextual retrieval)
+- ⚙️ Workflow automation with n8n
+- 📡 Monitoring & observability
+- 🛡️ Guardrails & fallback logic
+- ⚡ Realtime updates via Supabase
+
+---
+
+## 🏗️ Architecture
 
 ### Stack
 
-- **Frontend**: React + TypeScript
-- **Backend**: Supabase (Auth + Postgres + RLS + Realtime) + AI service (Node/Express)
-- **Automation**: n8n
-- **AI**: RAG using `pgvector`; Ollama as primary inference with optional OpenAI fallback
-
-### Flow
-
-1. User creates a ticket from the React UI.
-2. Ticket is stored in Supabase (RLS enforced).
-3. An Edge Function triggers a webhook to n8n.
-4. n8n calls the AI service (RAG-based classification).
-5. AI returns structured JSON (priority, category).
-6. Ticket is updated automatically.
-7. Fallback logic is applied if AI fails.
+- Frontend: React + TypeScript  
+- Backend: Supabase (Auth, Postgres, RLS, Realtime)  
+- AI Service: Node.js (Express)  
+- Automation: n8n  
+- AI: Ollama + optional OpenAI fallback  
+- Vector DB: pgvector  
 
 ---
 
-## Multi-Tenant Security (RLS)
+### 🔄 System Flow
 
-Each ticket belongs to an `org_id`.
-
-Row Level Security policies ensure:
-
- - Users can only access tickets within their organization.
- - Insert and update operations are restricted by org context.
- - Isolation enforced at database level (not only in frontend).
+1. User creates a ticket (React UI)
+2. Ticket stored in Supabase (RLS enforced)
+3. Edge Function triggers n8n webhook
+4. n8n calls AI classification service
+5. AI (RAG) returns structured result
+6. Ticket updated automatically
+7. Fallback applied if AI fails
 
 ---
 
-## AI Classification (RAG)
+## 🤖 AI Classification (RAG)
 
-- Embeddings stored using pgvector.
-- Retrieval limited to historical SAV tickets and validated documentation.
-- Prompt enforces strict structured JSON output:
+- Context retrieval from historical tickets + documentation  
+- Embeddings stored via pgvector  
+- Strict structured output enforcement  
 
-```json
+### Output format:
+
 {
   "priority": "high | medium | low",
-  "category": "technical | billing | bug | other"
+  "category": "technical | billing | bug | other",
+  "confidence": 0.92
 }
-```
 
 ---
 
-## Guardrails
+## 🛡️ Guardrails
 
-- Context-limited retrieval
-- Structured output validation
-- Confidence threshold
-- Rule-based fallback if AI fails or times out
-
----
-
-## n8n Workflow
-
-- Webhook trigger on ticket creation
-- AI classification call
-- Update ticket via Supabase REST API
-- Error handling & logging
-- Environment separation (staging / production)
+- Context-limited retrieval  
+- Output schema validation  
+- Confidence threshold  
+- Timeout handling  
+- Rule-based fallback system  
 
 ---
 
-## Testing Strategy
+## 📊 Monitoring & Observability
 
-- RLS validation with multiple organization users
-- API integration tests
-- React tests (React Testing Library)
-- Workflow testing in staging environment
-- AI output schema validation
-
----
-
-## Monitoring & Observability
-
-- Supabase logs
-- AI latency & error monitoring
-- Token usage tracking
-- n8n execution logs
+- AI latency tracking  
+- Error distribution  
+- Fallback usage analysis  
+- Execution timeline debugging  
+- Supabase logs + n8n execution logs  
 
 ---
 
-## Deployment
+## 🔌 API Endpoints
 
-- Dockerized services
-- Environment-based configuration (`.env.example` included)
-- Versioned database migrations
-- Staging & production separation
+POST /automation/classify
 
----
+GET /monitoring/execution/:executionId  
+GET /monitoring/latency  
+GET /monitoring/errors  
+GET /monitoring/fallbacks  
 
-## Project Goals
-
-This project demonstrates:
-
-- SaaS multi-tenant architecture
-- Secure data isolation (RLS)
-- Workflow automation
-- AI integration with guardrails
-- Cost-aware production design
+GET /health
 
 ---
 
-## Test Strategy
+## ⚡ Quick Start (TL;DR)
 
-### Unit Tests
+git clone
+cd project
 
-- AI classification logic
-- JSON schema validation
-- fallback behavior
-- timeout handling
-- prompt regression tests
+cp frontend/.env.example frontend/.env.local
+cp automation/.env.example automation/.env
 
-### Integration Tests
+docker compose -f automation/docker-compose.yml up -d
 
-- AI classify API endpoint
-- RAG context influence
-- Supabase Row Level Security multi-tenant isolation
-
-### End-to-End Validation
-
-- Ticket creation triggers webhook
-- n8n automation pipeline execution
-- AI classification response handling
-- Ticket update in database
-
-### Debug Scripts
-
-- embedding generation
-- prompt builder
-- ollama provider
-- retrieval pipeline
+cd automation && npm install && npm run dev
+cd frontend && npm install && npm run dev -- -p 3001
 
 ---
 
-## Author
+## 🔐 Multi-Tenant Security (RLS)
+
+- Each ticket scoped by org_id  
+- Full isolation at database level  
+- No cross-tenant access possible  
+
+---
+
+## 🚀 Deployment
+
+- Dockerized services  
+- Environment-based configuration  
+- Versioned DB migrations  
+- Staging / Production separation  
+
+---
+
+## 👨‍💻 Author
 
 Yassine El Outmani  
 Senior Full-Stack Engineer – AI & Data Systems  
-Morocco – Open to international & national opportunities
+
+Morocco – Open to international & remote opportunities  
