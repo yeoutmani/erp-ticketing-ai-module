@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { supabaseClient } from "@/lib/supabaseClient"
 import StatusBadge from "@/components/ui/status-badge"
 import TicketSearch from "@/components/tickets/TicketSearch"
+import { useToast } from "@/components/ui/toast"
 
 import {
   Table,
@@ -23,6 +24,7 @@ export default function TicketTable({ tickets }: { tickets: Ticket[] }) {
   const [data, setData] = useState<Ticket[]>(tickets)
   const [recentlyUpdated, setRecentlyUpdated] = useState<string | null>(null)
   const [search, setSearch] = useState("")
+  const { addToast } = useToast()
   const filteredTickets = data.filter((ticket) =>
     ticket.title.toLowerCase().includes(search.toLowerCase())
   )
@@ -42,6 +44,7 @@ export default function TicketTable({ tickets }: { tickets: Ticket[] }) {
           if (payload.eventType === "INSERT") {
             const newTicket = payload.new as Ticket
             setData(prev => [newTicket, ...prev])
+            addToast("New ticket created", "info")
           }
 
           if (payload.eventType === "UPDATE") {
@@ -54,12 +57,14 @@ export default function TicketTable({ tickets }: { tickets: Ticket[] }) {
             )
 
             setRecentlyUpdated(updated.id)
+            addToast("Ticket updated", "info")
             setTimeout(() => setRecentlyUpdated(null), 1500)
           }
 
           if (payload.eventType === "DELETE") {
             const removed = payload.old as Ticket
             setData(prev => prev.filter(t => t.id !== removed.id))
+            addToast("Ticket deleted", "info")
           }
 
         }

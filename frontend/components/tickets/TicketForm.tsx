@@ -4,6 +4,7 @@ import { useState } from "react"
 import { supabaseClient } from "@/lib/supabaseClient"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/components/ui/toast"
 
 export default function TicketForm() {
 
@@ -11,6 +12,7 @@ export default function TicketForm() {
   const [description, setDescription] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const { addToast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,6 +21,7 @@ export default function TicketForm() {
 
     if (!title.trim()) {
       setError("Title is required")
+      addToast("Title is required", "error")
       return
     }
 
@@ -36,6 +39,7 @@ export default function TicketForm() {
 
     if (error || !data) {
       setError("Failed to create ticket")
+      addToast("Failed to create ticket", "error")
       setLoading(false)
       return
     }
@@ -50,6 +54,7 @@ export default function TicketForm() {
       })
     })
 
+    addToast("Ticket created successfully", "success")
     setTitle("")
     setDescription("")
     setLoading(false)
